@@ -6,8 +6,15 @@ using TicTacToe.View;
 
 namespace TicTacToe
 {
+    /// <summary>
+    /// Main program of the application
+    /// </summary>
     public class Program
     {
+        /// <summary>
+        /// Main method that acts as the entry-point of the application
+        /// </summary>
+        /// <param name="args">An array of command-line arguments passed to the application.</param>
         public static void Main(string[] args)
         {
             UserRepo userRepo = new UserRepo("Users.json"); 

@@ -99,7 +99,7 @@ namespace TicTacToe.Utility
         /// <returns> True if the move is valid </returns>
         public bool ValidateMove(int move, string[] board)
         {
-            if (move < 0 || move >= board.Length)
+            if (move < 0 || move > board.Length)
             {
                 consoleUI.PrintErrorMessage("Invalid Move. Enter a valid move between 0 and 9");
                 return false;
