@@ -5,10 +5,36 @@
     /// </summary>
     public class Game
     {
+        public Game()
+        {
+            Moves = new Dictionary<int, Symbols>();
+        }
+
+        public Game(Guid userId, Mode gameMode, Hardness gameDifficulty, DateTime timeStamp, Result gameResult, int score, Dictionary<int, Symbols> moves)
+        {
+            this.UserId = userId;
+            this.GameMode = gameMode;
+            this.GameDifficulty = gameDifficulty;
+            this.TimeStamp = timeStamp;
+            this.GameResult = gameResult;
+            this.Score = score;
+            this.Moves = moves;
+        }
+
+        public Game(Mode gameMode, Hardness gameDifficulty, DateTime timeStamp, Result gameResult, int score, Dictionary<int, Symbols> moves)
+        {
+            this.GameMode = gameMode;
+            this.GameDifficulty = gameDifficulty;
+            this.TimeStamp = timeStamp;
+            this.GameResult = gameResult;
+            this.Score = score;
+            this.Moves = moves;
+        }
+
         /// <summary>
         /// Id of the user playing the game
         /// </summary>
-        public string UserId { get; set; }
+        public Guid UserId { get; set; }
 
         /// <summary>
         /// Mode of the game
@@ -25,6 +51,8 @@
         /// </summary>
         public DateTime TimeStamp { get; set; }
 
+        public Result GameResult {  get; set; }
+
         /// <summary>
         /// Score of the game
         /// </summary>
@@ -33,6 +61,6 @@
         /// <summary>
         /// Moves that are made in a game
         /// </summary>
-        public string Moves { get; set; }
+        public Dictionary<int, Symbols> Moves { get; set; }
     }
 }

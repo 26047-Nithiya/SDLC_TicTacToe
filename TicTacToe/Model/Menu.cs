@@ -14,5 +14,6 @@ namespace TicTacToe.Model
         PlayGame = 1,
         ShowHistory,
         ReplayGame,
+        Logout,
     }
 }

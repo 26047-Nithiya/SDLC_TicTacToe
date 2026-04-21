@@ -1,5 +1,5 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using TicTacToe.Model;
 using TicTacToe.Repository;
 using TicTacToe.View;
 
@@ -8,9 +8,9 @@ namespace TicTacToe.Utility
     /// <summary>
     /// Validation class
     /// </summary>
-    public class Validation
+    public class Validation<T>
     {
-        private UserRepo userRepo;
+        private IJsonRepo<User> userRepo;
         private ConsoleUI consoleUI;
 
         /// <summary>
@@ -18,7 +18,7 @@ namespace TicTacToe.Utility
         /// </summary>
         /// <param name="userRepo"> Object reference for repo layer </param>
         /// <param name="consoleUI"> Object reference for the console UI layer </param>
-        public Validation(UserRepo userRepo, ConsoleUI consoleUI)
+        public Validation(IJsonRepo<User> userRepo, ConsoleUI consoleUI)
         {
             this.userRepo = userRepo;
             this.consoleUI = consoleUI;
@@ -36,7 +36,7 @@ namespace TicTacToe.Utility
                 consoleUI.PrintErrorMessage("User name can not be all numbers");
                 return false;
             }
-            var users = userRepo.GetUsers();
+            var users = userRepo.GetItems();
             foreach(var user in users)
             {
                 if(user.Name == userName)
@@ -55,7 +55,7 @@ namespace TicTacToe.Utility
         /// <returns> True if the password is valid </returns>
         public bool ValidatePassword(string password)
         {
-            string pattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$";
+            string pattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$";
             bool isValid = Regex.IsMatch(password, pattern);
 
             if (password.Length < 8)
@@ -82,7 +82,7 @@ namespace TicTacToe.Utility
                 return false;
             }
 
-            if (!Regex.IsMatch(password, @"[@$!%*?&]"))
+            if (!Regex.IsMatch(password, @"[@$!#%*?&]"))
             {
                 consoleUI.PrintErrorMessage("Password must contain at least one special character (@$!%*?&).\n");
                 return false;
@@ -99,7 +99,7 @@ namespace TicTacToe.Utility
         /// <returns> True if the move is valid </returns>
         public bool ValidateMove(int move, string[] board)
         {
-            if (move < 0 || move >= board.Length)
+            if (move < 0 || move > board.Length)
             {
                 consoleUI.PrintErrorMessage("Invalid Move. Enter a valid move between 0 and 9");
                 return false;

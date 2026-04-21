@@ -8,5 +8,6 @@
         Easy = 1,
         Medium,
         Impossible,
+        MainMenu,
     }
 }

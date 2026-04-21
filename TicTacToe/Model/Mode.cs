@@ -7,6 +7,6 @@
     {
         SinglePlayer = 1,
         Multiplayer,
-        Logout,
+        MainMenu,
     }
 }

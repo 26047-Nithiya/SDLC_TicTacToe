@@ -6,15 +6,15 @@ namespace TicTacToe.Services
     /// <summary>
     /// Services for handling authentication
     /// </summary>
-    public class AuthService
+    public class AuthService<T> : IAuthService<T>
     {
-        private UserRepo userRepo;
+        private IJsonRepo<User> userRepo;
 
         /// <summary>
         /// Constructor to initialize other layer references
         /// </summary>
         /// <param name="userRepo"> Object reference for the repository layer </param>
-        public AuthService(UserRepo userRepo)
+        public AuthService(IJsonRepo<User> userRepo)
         {
             this.userRepo = userRepo;
         }
@@ -30,9 +30,9 @@ namespace TicTacToe.Services
             Guid userId = Guid.NewGuid();
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
             User user = new User(userId, userName, hashedPassword);
-            if(user != null )
+            if (user != null)
             {
-                userRepo.AddUser(user);
+                userRepo.Add(user);
                 return true;
             }
 
@@ -45,15 +45,15 @@ namespace TicTacToe.Services
         /// <param name="userName"> Name of the user </param>
         /// <param name="password"> Password of the user </param>
         /// <returns> True if login successful </returns>
-        public bool Login(string userName, string password)
+        public Session Login(string userName, string password)
         {
-            var users = userRepo.GetUsers();
+            var users = userRepo.GetItems();
             var user = users.FirstOrDefault(x => x.Name == userName);
-            if( user != null && BCrypt.Net.BCrypt.Verify(password, user.Password))
+            if (user != null && BCrypt.Net.BCrypt.Verify(password, user.Password))
             {
-                return true;
+                return new Session(user.Id, userName);
             }
-            return false;
+            return null;
         }
     }
 }
