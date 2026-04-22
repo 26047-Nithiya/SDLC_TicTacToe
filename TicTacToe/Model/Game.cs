@@ -5,6 +5,16 @@
     /// </summary>
     public class Game
     {
+        public Game(string userId, Mode gameMode, Hardness gameDifficulty, DateTime timeStamp, int score, string moves)
+        {
+            UserId = userId;
+            GameMode = gameMode;
+            GameDifficulty = gameDifficulty;
+            TimeStamp = timeStamp;
+            Score = score;
+            Moves = moves;
+        }
+
         /// <summary>
         /// Id of the user playing the game
         /// </summary>
@@ -34,5 +44,7 @@
         /// Moves that are made in a game
         /// </summary>
         public string Moves { get; set; }
+
+
     }
 }

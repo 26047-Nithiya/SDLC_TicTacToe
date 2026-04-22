@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Cryptography;
+using System.Text;
 using TicTacToe.Model;
 
 namespace TicTacToe.Services
@@ -8,6 +9,9 @@ namespace TicTacToe.Services
     /// </summary>
     public class GameService
     {
+        const string HUMAN = "❌";
+        const string AI = "🔵";
+
         /// <summary>
         /// Method that contains the easy logic of the game
         /// </summary>
@@ -16,9 +20,8 @@ namespace TicTacToe.Services
         /// <param name="board"> List of strings in the board </param>
         /// <param name="symbol"> Symbol to be written in the board </param>
         /// <returns> The list of computer inputs </returns>
-        public List<int> EasyGameLogic(int gridInput, List<int> playerInputs, string[] board, Symbols symbol)
+        public List<int> EasyGameLogic(List<int> playerInputs, List<int> comInputs, string[] board, Symbols symbol)
         {
-            List<int> comInputs = new List<int>();
             Random random = new Random();
             int computerInput = 0;
 
@@ -32,6 +35,113 @@ namespace TicTacToe.Services
                     return comInputs;
                 }
             }
+        }
+
+        static bool IsMovesLeft(string[] board)
+        {
+            for (int i = 0; i < 9; i++)
+            {
+                if (board[i] != AI && board[i] != HUMAN)
+                    return true;
+            }
+            return false;
+        }
+
+        static int Evaluate(string[] board)
+        {
+            int[,] winPatterns = {
+                {0,1,2},{3,4,5},{6,7,8},
+                {0,3,6},{1,4,7},{2,5,8},
+                {0,4,8},{2,4,6}
+            };
+
+            for (int i = 0; i < 8; i++)
+            {
+                int a = winPatterns[i, 0];
+                int b = winPatterns[i, 1];
+                int c = winPatterns[i, 2];
+
+                if (board[a] == board[b] && board[b] == board[c])
+                {
+                    if (board[a] == AI) return 10;
+                    if (board[a] == HUMAN) return -10;
+                }
+            }
+            return 0;
+        }
+
+        static int Minimax(string[] board, int depth, bool isMax)
+        {
+            int score = Evaluate(board);
+
+            if (score == 10) return score - depth;
+            if (score == -10) return score + depth;
+            if (!IsMovesLeft(board)) return 0;
+
+            if (isMax)
+            {
+                int best = int.MinValue;
+
+                for (int i = 0; i < 9; i++)
+                {
+                    if (board[i] != AI && board[i] != HUMAN)
+                    {
+                        string temp = board[i];
+                        board[i] = AI;
+
+                        best = Math.Max(best, Minimax(board, depth + 1, false));
+
+                        board[i] = temp;
+                    }
+                }
+                return best;
+            }
+            else
+            {
+                int best = int.MaxValue;
+
+                for (int i = 0; i < 9; i++)
+                {
+                    if (board[i] != AI && board[i] != HUMAN)
+                    {
+                        string temp = board[i];
+                        board[i] = HUMAN;
+
+                        best = Math.Min(best, Minimax(board, depth + 1, true));
+
+                        board[i] = temp;
+                    }
+                }
+                return best;
+            }
+        }
+
+        public int HardGameLogic(string[] board, Symbols symbol)
+        {
+            int bestVal = int.MinValue;
+            int bestMove = -1;
+
+            for (int i = 0; i < 9; i++)
+            {
+                if (board[i] != AI && board[i] != HUMAN)
+                {
+                    string temp = board[i];
+                    board[i] = AI;
+
+                    int moveVal = Minimax(board, 0, false);
+
+                    board[i] = temp;
+
+                    if (moveVal > bestVal)
+                    {
+                        bestMove = i;
+                        bestVal = moveVal;
+                    }
+                }
+            }
+
+            board = UpdateBoard(bestMove + 1, board, symbol == Symbols.X ? Symbols.O : Symbols.X);
+            return bestMove + 1;
         }
 
         /// <summary>
@@ -77,7 +187,7 @@ namespace TicTacToe.Services
         {
             foreach (string pattern in board)
             {
-                if (int.TryParse(pattern, out int gridNum))
+                if (int.TryParse(pattern.Trim(), out int gridNum))
                 {
                     return false;
                 }
@@ -104,6 +214,12 @@ namespace TicTacToe.Services
             {
                 board[gridInput - 1] = "🔵";
             }
+            return board;
+        }
+
+        public string[] GetGameBoard()
+        {
+            string[] board = { " 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9" };
             return board;
         }
     }

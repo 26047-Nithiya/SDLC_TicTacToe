@@ -49,7 +49,7 @@ namespace TicTacToe.View
             {
                 PrintErrorMessage("Input cannot be empty");
             }
-            if (!int.TryParse(userInput, out int result) || !Enum.IsDefined(typeof(Mode), result))
+            if (!int.TryParse(userInput, out int result) || !Enum.IsDefined(typeof(T), result))
             {
                 PrintErrorMessage("Enter a valid integer");
             }
@@ -68,7 +68,7 @@ namespace TicTacToe.View
             {
                 Console.WriteLine($"Enter the {message}");
                 string userName = Console.ReadLine() ?? string.Empty;
-                if (string.IsNullOrEmpty(userName))
+                if (string.IsNullOrWhiteSpace(userName))
                 {
                     PrintErrorMessage($"{message} cannot be empty");
                 }
