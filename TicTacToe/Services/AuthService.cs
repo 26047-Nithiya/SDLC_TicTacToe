@@ -53,6 +53,7 @@ namespace TicTacToe.Services
             {
                 return new Session(user.Id, userName);
             }
+
             return null;
         }
     }

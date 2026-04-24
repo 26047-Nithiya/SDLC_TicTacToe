@@ -29,6 +29,13 @@ namespace TicTacToe
             GameStarter(gameService, consoleUI, validator, controller);
         }
 
+        /// <summary>
+        /// Method to start the game application
+        /// </summary>
+        /// <param name="gameService"> Object references for the game service layer </param>
+        /// <param name="consoleUI"> Object references for the console layer </param>
+        /// <param name="validator"> Object reference for the validation layer </param>
+        /// <param name="controller"> Object reference for the authentication controller </param>
         public static void GameStarter(IGameService gameService, ConsoleUI consoleUI, Validation<User> validator, AuthController controller)
         {
             while (true)

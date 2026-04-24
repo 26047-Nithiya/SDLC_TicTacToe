@@ -51,6 +51,9 @@
         /// </summary>
         public DateTime TimeStamp { get; set; }
 
+        /// <summary>
+        /// Result of the game
+        /// </summary>
         public Result GameResult {  get; set; }
 
         /// <summary>

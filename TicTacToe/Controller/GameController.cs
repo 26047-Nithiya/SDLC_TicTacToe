@@ -14,6 +14,15 @@ namespace TicTacToe.Controller
         private Validation<User> validator;
         private AuthController controller;
 
+        /// <summary>
+        /// Controller to instantiate the references for object references
+        /// </summary>
+        /// <param name="session"> Object references for the session </param>
+        /// <param name="game"> Object references for the game </param>
+        /// <param name="consoleUI"> Object references for the console layer </param>
+        /// <param name="gameService"> Object references for the game service layer </param>
+        /// <param name="validator"> Object reference for the validation layer </param>
+        /// <param name="controller"> Object reference for the authentication controller </param>
         public GameController(Session session, Game game, ConsoleUI consoleUI, IGameService gameService, Validation<User> validator, AuthController controller)
         {
             this.session = session;
@@ -24,6 +33,10 @@ namespace TicTacToe.Controller
             this.controller = controller;
         }
 
+        /// <summary>
+        /// Method to select the menu
+        /// </summary>
+        /// <param name="userId"> Id of the current user </param>
         public void SelectMenuOption(Guid userId)
         {
             while (true)
@@ -62,13 +75,14 @@ namespace TicTacToe.Controller
             var board = gameService.GetGameBoard();
             consoleUI.PrintGameInfo("Select Game Mode");
             Mode mode = consoleUI.SelectGameCategory<Mode>(session.UserName);
-            gameService.UpdateGameInfo(game, mode);
             switch (mode)
             {
                 case Mode.SinglePlayer:
+                    gameService.UpdateGameInfo(game, mode);
                     SinglePlayerMode(board);
                     break;
                 case Mode.Multiplayer:
+                    gameService.UpdateGameInfo(game, mode);
                     MultiPlayerMode(board);
                     break;
                 case Mode.MainMenu:
@@ -103,6 +117,11 @@ namespace TicTacToe.Controller
             }
         }
 
+        /// <summary>
+        /// Method to replay the game
+        /// </summary>
+        /// <param name="userId"> Id of the user </param>
+        /// <returns></returns>
         private IEnumerable<Game> ReplayGame(Guid userId)
         {
             IEnumerable<Game> games = gameService.GetGameHistory(userId);
@@ -137,6 +156,10 @@ namespace TicTacToe.Controller
             return games;
         }
 
+        /// <summary>
+        /// Method to handle the hard mode game
+        /// </summary>
+        /// <param name="board"> Game board of tic tac toe</param>
         public void HardMode(string[] board)
         {
             List<int> computerInputs = new List<int>();
@@ -170,6 +193,13 @@ namespace TicTacToe.Controller
             }
         }
 
+        /// <summary>
+        /// Method to process the hard moves 
+        /// </summary>
+        /// <param name="board"> Board of tic tac toe </param>
+        /// <param name="computerInputs"> Inputs by the computer algorithm </param>
+        /// <param name="symbol"> Symbol to be inserted </param>
+        /// <returns> The list of computer inputs </returns>
         private List<int> ProcessHardComputerMove(string[] board, List<int> computerInputs, Symbols symbol)
         {
             int bestMove = gameService.HardGameLogic(game, board, symbol);
@@ -183,6 +213,10 @@ namespace TicTacToe.Controller
             return computerInputs;
         }
 
+        /// <summary>
+        /// Method that handles the easy mode
+        /// </summary>
+        /// <param name="board"> Board of tic tac toe </param>
         private void EasyMode(string[] board)
         {
             while (true)
@@ -218,6 +252,14 @@ namespace TicTacToe.Controller
             }
         }
 
+        /// <summary>
+        /// Method to handle the easy computer logic
+        /// </summary>
+        /// <param name="board"> Board of tic tac toe </param>
+        /// <param name="symbol"> Symbol to be inserted </param>
+        /// <param name="playerInputs"> Inputs by the user </param>
+        /// <param name="computerInputs"> Inputs by the computer </param>
+        /// <returns>The list of easy logic inputs </returns>
         private List<int> ProcessEasyComputerLogic(string[] board, Symbols symbol, List<int> playerInputs, List<int> computerInputs)
         {
             computerInputs = gameService.EasyGameLogic(game, playerInputs, computerInputs, board, symbol);
@@ -231,6 +273,10 @@ namespace TicTacToe.Controller
             return computerInputs;
         }
 
+        /// <summary>
+        /// Method that handles the medium mode
+        /// </summary>
+        /// <param name="board"> Board of tic tac toe </param>
         public void MediumMode(string[] board)
         {
             List<int> computerInputs = new List<int>();
@@ -282,7 +328,6 @@ namespace TicTacToe.Controller
                 List<int> playerOneInputs = new List<int>();
                 List<int> playerTwoInputs = new List<int>();
                 consoleUI.PrintGameBoard(board);
-
                 for (int i = 0; i < board.Length; i++)
                 {
                     int userOneInput = consoleUI.GetGridInput();

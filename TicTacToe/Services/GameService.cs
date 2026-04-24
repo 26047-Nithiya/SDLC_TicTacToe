@@ -14,6 +14,10 @@ namespace TicTacToe.Services
         const string AI = "🔵";
         private IJsonRepo<Game> gameRepo;
 
+        /// <summary>
+        /// Constructor for instantiating the repository layer
+        /// </summary>
+        /// <param name="gameRepo"> Repository for games </param>
         public GameService(IJsonRepo<Game> gameRepo)
         {
             this.gameRepo = gameRepo;
@@ -45,7 +49,12 @@ namespace TicTacToe.Services
             }
         }
 
-        static bool IsMovesLeft(string[] board)
+        /// <summary>
+        /// Method to check if any moves left
+        /// </summary>
+        /// <param name="board"> Board of the tic tac toe </param>
+        /// <returns> True if any moves left </returns>
+        public bool IsMovesLeft(string[] board)
         {
             for (int i = 0; i < 9; i++)
             {
@@ -55,7 +64,12 @@ namespace TicTacToe.Services
             return false;
         }
 
-        static int Evaluate(string[] board)
+        /// <summary>
+        /// Method to evaluate the winning patterns
+        /// </summary>
+        /// <param name="board"> Board of the tic tac toe </param>
+        /// <returns> The score from the winning pattern </returns>
+        public int Evaluate(string[] board)
         {
             int[,] winPatterns = {
                 {0,1,2},{3,4,5},{6,7,8},
@@ -78,7 +92,12 @@ namespace TicTacToe.Services
             return 0;
         }
 
-        static int Minimax(string[] board, int depth, bool isMax)
+        /// <summary> Evaluates the game board using the Minimax algorithm to determine the optimal move score.</summary>
+        /// <param name="board">The current state of the game board represented as a string array.</param>
+        /// <param name="depth">The current depth of recursion in the Minimax search tree.</param>
+        /// <param name="isMax"> A boolean indicating whether the current move is for the computer (true) or the minimizing player (false).</param>
+        /// <returns> The best score calculated recursively </returns>
+        public int Minimax(string[] board, int depth, bool isMax)
         {
             int score = Evaluate(board);
 
@@ -124,6 +143,13 @@ namespace TicTacToe.Services
             }
         }
 
+        /// <summary>
+        /// Method to get the best possible move 
+        /// </summary>
+        /// <param name="game"> Current playing game </param>
+        /// <param name="board"> Tic tac toe game </param>
+        /// <param name="symbol"> Symbol to be inserted </param>
+        /// <returns> The best move </returns>
         public int HardGameLogic(Game game, string[] board, Symbols symbol)
         {
             int bestVal = int.MinValue;
@@ -231,7 +257,13 @@ namespace TicTacToe.Services
             string[] board = { " 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9" };
             return board;
         }
-
+        
+        /// <summary>
+        /// Method to update the game info
+        /// </summary>
+        /// <typeparam name="T"> Generic type </typeparam>
+        /// <param name="game"> Current game </param>
+        /// <param name="info"> Info to be set </param>
         public void UpdateGameInfo<T>(Game game, T info)
         {
             if (info is Guid)
@@ -264,17 +296,32 @@ namespace TicTacToe.Services
                 }
             }
         }
-
+        
+        /// <summary>
+        /// Method to update the moves of the game
+        /// </summary>
+        /// <param name="game"> The current game </param>
+        /// <param name="move"> Move of the game </param>
+        /// <param name="symbol"> The symbol to be inserted </param>
         public void UpdateMoves(Game game, int move, Symbols symbol)
         {
             game.Moves[move] = symbol;
         }
 
+        /// <summary>
+        /// Method to save the game info
+        /// </summary>
+        /// <param name="game"> Current game </param>
         public void SaveGameInfo(Game game)
         {
             gameRepo.Add(game);
         }
 
+        /// <summary>
+        /// Method to get the game history
+        /// </summary>
+        /// <param name="id"> Id of the user </param>
+        /// <returns> The list of games </returns>
         public IEnumerable<Game> GetGameHistory(Guid id)
         {
             var games = gameRepo.GetItems();

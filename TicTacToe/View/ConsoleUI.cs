@@ -50,6 +50,9 @@ namespace TicTacToe.View
             return null;
         }
 
+        /// <summary>
+        /// Method to draw the header of the application
+        /// </summary>
         public void DrawHeader()
         {
             Console.Clear();
@@ -195,6 +198,10 @@ namespace TicTacToe.View
             return false;
         }
 
+        /// <summary>
+        /// Method to show the game history
+        /// </summary>
+        /// <param name="games"> Games that are played and stored </param>
         public void ShowGameHistory(IEnumerable<Game> games)
         {
             ConsoleTable table = new ConsoleTable("Game id", "Game mode", "Difficulty", "Time", "Result", "Score");
@@ -208,12 +215,20 @@ namespace TicTacToe.View
             ReadKeyPressToContinue();
         }
 
+        /// <summary>
+        /// Method to read any key
+        /// </summary>
         public void ReadKeyPressToContinue()
         {
             PrintGameInfo("Press any key to continue");
             Console.ReadKey();
         }
 
+        /// <summary>
+        /// Method to select the game to be replayed
+        /// </summary>
+        /// <param name="games"> Games that are stored as history </param>
+        /// <returns> The selected game id </returns>
         public int SelectGameToReplay(IEnumerable<Game> games)
         {
             Console.WriteLine("Enter tha game id from the above to start replaying");
