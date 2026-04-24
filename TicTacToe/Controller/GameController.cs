@@ -53,7 +53,7 @@ namespace TicTacToe.Controller
                         consoleUI.ShowGameHistory(games);
                         break;
                     case Menu.ReplayGame:
-                        games = ReplayGame(userId);
+                        ReplayGame(userId);
                         break;
                     case Menu.Logout:
                         consoleUI.PrintErrorMessage("Log out successful");
@@ -83,7 +83,9 @@ namespace TicTacToe.Controller
                     break;
                 case Mode.Multiplayer:
                     gameService.UpdateGameInfo(game, mode);
-                    MultiPlayerMode(board);
+                    int playerOneScore = 0;
+                    int playerTwoScore = 0;
+                    MultiPlayerMode(board, playerOneScore, playerTwoScore);
                     break;
                 case Mode.MainMenu:
                     SelectMenuOption(game.UserId);
@@ -122,38 +124,46 @@ namespace TicTacToe.Controller
         /// </summary>
         /// <param name="userId"> Id of the user </param>
         /// <returns></returns>
-        private IEnumerable<Game> ReplayGame(Guid userId)
+        private void ReplayGame(Guid userId)
         {
             IEnumerable<Game> games = gameService.GetGameHistory(userId);
             consoleUI.ShowGameHistory(games);
             int gameId = consoleUI.SelectGameToReplay(games);
-            var board = gameService.GetGameBoard();
-            var gameToBeReplayed = games.ToList()[gameId - 1];
-            consoleUI.PrintGameBoard(board);
-            foreach (var moves in gameToBeReplayed.Moves)
+
+            if(gameId <= games.Count())
             {
-                consoleUI.PrintGameInfo("REPLAYING GAME");
-                board = gameService.UpdateBoard(moves.Key, board, (Symbols)moves.Value);
-                Thread.Sleep(2000);
+                var board = gameService.GetGameBoard();
+                var gameToBeReplayed = games.ToList()[gameId - 1];
                 consoleUI.PrintGameBoard(board);
-            }
-            if (gameToBeReplayed.GameResult == Result.Win)
-            {
-                consoleUI.PrintSuccessMessage("PLAYER WON");
-                consoleUI.ReadKeyPressToContinue();
-            }
-            else if (gameToBeReplayed.GameResult == Result.Loss)
-            {
-                consoleUI.PrintSuccessMessage("PLAYER LOST");
-                consoleUI.ReadKeyPressToContinue();
+                foreach (var moves in gameToBeReplayed.Moves)
+                {
+                    consoleUI.PrintGameInfo("REPLAYING GAME");
+                    board = gameService.UpdateBoard(moves.Key, board, (Symbols)moves.Value);
+                    Thread.Sleep(2000);
+                    consoleUI.PrintGameBoard(board);
+                }
+                if (gameToBeReplayed.GameResult == Result.Win)
+                {
+                    consoleUI.PrintSuccessMessage("PLAYER WON");
+                    consoleUI.ReadKeyPressToContinue();
+                }
+                else if (gameToBeReplayed.GameResult == Result.Loss)
+                {
+                    consoleUI.PrintSuccessMessage("PLAYER LOST");
+                    consoleUI.ReadKeyPressToContinue();
+                }
+                else
+                {
+                    consoleUI.PrintSuccessMessage("MATCH DRAW");
+                    consoleUI.ReadKeyPressToContinue();
+                }
             }
             else
             {
-                consoleUI.PrintSuccessMessage("MATCH DRAW");
+                consoleUI.PrintErrorMessage("Game id does not exist");
                 consoleUI.ReadKeyPressToContinue();
+                return;
             }
-
-            return games;
         }
 
         /// <summary>
@@ -173,6 +183,10 @@ namespace TicTacToe.Controller
                     bool isWin;
                     computerInputs = ProcessHardComputerMove(board, computerInputs, symbol);
                     int userInput = consoleUI.GetGridInput();
+                    if(userInput == -1)
+                    {
+                        return;
+                    }
                     bool isValid = validator.ValidateMove(userInput, board);
                     if (isValid)
                     {
@@ -181,9 +195,9 @@ namespace TicTacToe.Controller
                         board = gameService.UpdateBoard(userInput, board, symbol);
                         consoleUI.PrintGameBoard(board);
                         isWin = gameService.CheckWin(playerInputs);
-                        WinOrDrawHandler(Result.Win, isWin, "Player Won", () => MultiPlayerMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
+                        WinOrDrawHandler(Result.Win, isWin, "Player Won", () => HardMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
                         bool isDraw = gameService.CheckDraw(board);
-                        WinOrDrawHandler(Result.Draw, isWin, "Match is Draw", () => MultiPlayerMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
+                        WinOrDrawHandler(Result.Draw, isWin, "Match is Draw", () => HardMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
                     }
                     else
                     {
@@ -209,7 +223,7 @@ namespace TicTacToe.Controller
             bool isWin = gameService.CheckWin(computerInputs);
             WinOrDrawHandler(Result.Loss, isWin, "Computer Won", () => HardMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
             bool isDraw = gameService.CheckDraw(board);
-            WinOrDrawHandler(Result.Draw, isDraw, "Match is Draw", () => MultiPlayerMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
+            WinOrDrawHandler(Result.Draw, isDraw, "Match is Draw", () => HardMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
             return computerInputs;
         }
 
@@ -231,6 +245,10 @@ namespace TicTacToe.Controller
                     bool isDraw = gameService.CheckDraw(board);
                     WinOrDrawHandler(Result.Draw, isDraw, "Match is Draw", () => EasyMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
                     int userInput = consoleUI.GetGridInput();
+                    if (userInput == -1)
+                    {
+                        return;
+                    }
                     bool isValid = validator.ValidateMove(userInput, board);
                     if (isValid)
                     {
@@ -241,7 +259,7 @@ namespace TicTacToe.Controller
                         bool isWin = gameService.CheckWin(playerInputs);
                         WinOrDrawHandler(Result.Win, isWin, "Player Won", () => EasyMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
                         isDraw = gameService.CheckDraw(board);
-                        WinOrDrawHandler(Result.Draw, isDraw, "Match is Draw", () => SinglePlayerMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
+                        WinOrDrawHandler(Result.Draw, isDraw, "Match is Draw", () => EasyMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
                         computerInputs = ProcessEasyComputerLogic(board, symbol, playerInputs, computerInputs);
                     }
                     else
@@ -269,7 +287,7 @@ namespace TicTacToe.Controller
             bool isWin = gameService.CheckWin(computerInputs);
             WinOrDrawHandler(Result.Loss, isWin, "Computer Won", () => EasyMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
             bool isDraw = gameService.CheckDraw(board);
-            WinOrDrawHandler(Result.Draw, isDraw, "Match is Draw", () => SinglePlayerMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
+            WinOrDrawHandler(Result.Draw, isDraw, "Match is Draw", () => EasyMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
             return computerInputs;
         }
 
@@ -296,6 +314,10 @@ namespace TicTacToe.Controller
                         computerInputs = ProcessEasyComputerLogic(board, symbol, playerInputs, computerInputs);
                     }
                     int userInput = consoleUI.GetGridInput();
+                    if (userInput == -1)
+                    {
+                        return;
+                    }
                     bool isValid = validator.ValidateMove(userInput, board);
                     if (isValid)
                     {
@@ -304,9 +326,9 @@ namespace TicTacToe.Controller
                         board = gameService.UpdateBoard(userInput, board, symbol);
                         consoleUI.PrintGameBoard(board);
                         bool isWin = gameService.CheckWin(playerInputs);
-                        WinOrDrawHandler(Result.Win, isWin, "Player Won", () => MultiPlayerMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
+                        WinOrDrawHandler(Result.Win, isWin, "Player Won", () => MediumMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
                         bool isDraw = gameService.CheckDraw(board);
-                        WinOrDrawHandler(Result.Draw, isDraw, "Match is Draw", () => MultiPlayerMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
+                        WinOrDrawHandler(Result.Draw, isDraw, "Match is Draw", () => MediumMode(gameService.GetGameBoard()), () => SinglePlayerMode(gameService.GetGameBoard()));
                     }
                     else
                     {
@@ -320,7 +342,7 @@ namespace TicTacToe.Controller
         /// Method handling the multiplayer mode of the game
         /// </summary>
         /// <param name="board"> Board with numberings </param>
-        private void MultiPlayerMode(string[] board)
+        private void MultiPlayerMode(string[] board, int playerOneScore, int playerTwoScore)
         {
             while (true)
             {
@@ -331,27 +353,57 @@ namespace TicTacToe.Controller
                 for (int i = 0; i < board.Length; i++)
                 {
                     int userOneInput = consoleUI.GetGridInput();
+                    if (userOneInput == -1)
+                    {
+                        return;
+                    }
                     if (validator.ValidateMove(userOneInput, board))
                     {
                         playerOneInputs.Add(userOneInput);
                         gameService.UpdateMoves(game, userOneInput, symbol);
                         board = gameService.UpdateBoard(userOneInput, board, symbol);
                         consoleUI.PrintGameBoard(board);
+                        consoleUI.PrintMultiPlayerScores(playerOneScore, playerTwoScore);
                         bool isWin = gameService.CheckWin(playerOneInputs);
-                        WinOrDrawHandler(Result.Win, isWin, "Player 1 Won", () => MultiPlayerMode(gameService.GetGameBoard()), StartGame);
+                        if(isWin)
+                        {
+                            playerOneScore += 10;
+                            playerTwoScore += 0;
+                        }
+                        WinOrDrawHandler(Result.Win, isWin, "Player 1 Won", () => MultiPlayerMode(gameService.GetGameBoard(), playerOneScore, playerTwoScore), StartGame);
                         bool isDraw = gameService.CheckDraw(board);
-                        WinOrDrawHandler(Result.Draw, isDraw, "Match is Draw", () => MultiPlayerMode(gameService.GetGameBoard()), StartGame);
+                        if (isDraw)
+                        {
+                            playerOneScore += 5;
+                            playerTwoScore += 5;
+                        }
+                        WinOrDrawHandler(Result.Draw, isDraw, "Match is Draw", () => MultiPlayerMode(gameService.GetGameBoard(), playerOneScore, playerTwoScore), StartGame);
                         int userTwoInput = consoleUI.GetGridInput();
+                        if (userTwoInput == -1)
+                        {
+                            return;
+                        }
                         if (validator.ValidateMove(userTwoInput, board))
                         {
                             playerTwoInputs.Add(userTwoInput);
                             gameService.UpdateMoves(game, userOneInput, symbol);
                             board = gameService.UpdateBoard(userTwoInput, board, symbol == Symbols.X ? Symbols.O : Symbols.X);
                             consoleUI.PrintGameBoard(board);
-                            isWin = gameService.CheckWin(playerOneInputs);
-                            WinOrDrawHandler(Result.Loss, isWin, "Player 2 Won", () => MultiPlayerMode(gameService.GetGameBoard()), StartGame);
+                            consoleUI.PrintMultiPlayerScores(playerOneScore, playerTwoScore);
+                            isWin = gameService.CheckWin(playerTwoInputs);
+                            WinOrDrawHandler(Result.Loss, isWin, "Player 2 Won", () => MultiPlayerMode(gameService.GetGameBoard(), playerOneScore, playerTwoScore), StartGame);
                             isDraw = gameService.CheckDraw(board);
-                            WinOrDrawHandler(Result.Draw, isDraw, "Match is Draw", () => MultiPlayerMode(gameService.GetGameBoard()), StartGame);
+                            if (isWin)
+                            {
+                                playerOneScore += 0;
+                                playerTwoScore += 10;
+                            }
+                            if (isDraw)
+                            {
+                                playerOneScore += 5;
+                                playerTwoScore += 5;
+                            }
+                            WinOrDrawHandler(Result.Draw, isDraw, "Match is Draw", () => MultiPlayerMode(gameService.GetGameBoard(), playerOneScore, playerTwoScore), StartGame);
                         }
                         else
                         {

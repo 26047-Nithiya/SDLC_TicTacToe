@@ -132,16 +132,28 @@ namespace TicTacToe.View
         {
             while (true)
             {
-                Console.WriteLine("Enter the grid number from the above example");
-                string stringInput = Console.ReadLine() ?? string.Empty;
-                if (string.IsNullOrEmpty(stringInput))
+                Console.WriteLine("Press a number (1–9) to select a grid, or ESC to quit:");
+
+                var keyInfo = Console.ReadKey(true);
+                
+                if (keyInfo.Key == ConsoleKey.Escape)
                 {
-                    PrintErrorMessage("Input can not be empty... Try again\n");
+                    PrintErrorMessage("Game aborted by user.");
+                    Thread.Sleep(2000);
+                    return -1;
                 }
-                if (int.TryParse(stringInput, out int result))
+
+                if (keyInfo.Key >= ConsoleKey.D1 && keyInfo.Key <= ConsoleKey.D9)
                 {
-                    return result;
+                    return keyInfo.Key - ConsoleKey.D0;
                 }
+
+                if (keyInfo.Key >= ConsoleKey.NumPad1 && keyInfo.Key <= ConsoleKey.NumPad9)
+                {
+                    return keyInfo.Key - ConsoleKey.NumPad0;
+                }
+
+                PrintErrorMessage("Invalid input. Please press a number between 1 and 9.\n");
             }
         }
 
@@ -239,9 +251,24 @@ namespace TicTacToe.View
                 {
                     Console.WriteLine("Input can not be empty, select a game id");
                 }
-                if (int.TryParse(userInput, out int input))
+
+                if (int.TryParse(userInput, out int gameId))
                 {
-                    return input;
+                    if (gameId == 0)
+                    {
+                        PrintErrorMessage("Game id cannot be zero");
+                        ReadKeyPressToContinue();
+                    }
+
+                    else if (gameId < 0)
+                    {
+                        PrintErrorMessage("Game id cannot be negative");
+                        ReadKeyPressToContinue();
+                    }
+                    else
+                    {
+                        return gameId;
+                    }
                 }
                 Console.WriteLine("Enter a valid game id");
             }
@@ -262,6 +289,19 @@ namespace TicTacToe.View
             Console.WriteLine("├─────┼─────┼─────┤");
             Console.WriteLine($"│ {board[6]}  │ {board[7]}  │ {board[8]}  │");
             Console.WriteLine("└─────┴─────┴─────┘");
+        }
+
+        /// <summary>
+        /// Method to display the score of two players
+        /// </summary>
+        /// <param name="scoreOne"> Player 1 score </param>
+        /// <param name="scoreTwo"> Player 2 score </param>
+        public void PrintMultiPlayerScores(int scoreOne, int scoreTwo)
+        {
+            PrintGameInfo("Scores of multiplayer game");
+            ConsoleTable table = new ConsoleTable("Player 1", "Player 2");
+            table.AddRow(scoreOne, scoreTwo);
+            Console.WriteLine(table.ToString());
         }
 
         /// <summary>

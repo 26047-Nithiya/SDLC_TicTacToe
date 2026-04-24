@@ -41,29 +41,32 @@ namespace TicTacToe.Controller
                             RegistrationHandler();
                             break;
                         case 2:
-                            string userName = consoleUI.GetStringInput("User name");
-                            if(userName == null)
+                            while (true)
                             {
-                                consoleUI.PrintErrorMessage("Too many invalid attempts. Exiting...");
-                                return null;
+                                string userName = consoleUI.GetStringInput("User name");
+                                if (userName == null)
+                                {
+                                    consoleUI.PrintErrorMessage("Too many invalid attempts. Exiting...");
+                                    return null;
+                                }
+                                string password = consoleUI.GetStringInput("Password");
+                                if (password == null)
+                                {
+                                    consoleUI.PrintErrorMessage("Too many invalid attempts. Exiting...");
+                                    return null;
+                                }
+                                var session = authService.Login(userName, password);
+                                if (session != null)
+                                {
+                                    consoleUI.PrintSuccessMessage("Login Successful\n");
+                                    return session;
+                                }
+                                else
+                                {
+                                    consoleUI.PrintErrorMessage("Invalid username and password");
+                                }
                             }
-                            string password = consoleUI.GetStringInput("Password");
-                            if(password == null)
-                            {
-                                consoleUI.PrintErrorMessage("Too many invalid attempts. Exiting...");
-                                return null;
-                            }
-                            var session = authService.Login(userName, password);
-                            if (session != null)
-                            {
-                                consoleUI.PrintSuccessMessage("Login Successful\n");
-                                return session;
-                            }
-                            else
-                            {
-                                consoleUI.PrintErrorMessage("Too many invalid attempts. Exiting...");
-                                return null;
-                            }
+                            break;
                         case 3:
                             Environment.Exit(0);
                             break;
